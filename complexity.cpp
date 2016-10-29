@@ -11,17 +11,41 @@
 
 /* Function prototype */
 int pwdLength(const std::string&);              //Return the length of the password
-bool dictionaryCheck(const std::string&);       //Return 1 for true or 0 for false if the password is in the dictionary
+bool dictionaryCheck(const std::string&);       //Return 1 for true or 0 for false if the password is in the dictionary[dictionary.txt]
 int atleast1Letter (const std::string&);        //Return the number of letter[small] in the password
 int atleast1CL(const std::string&);             //Return the number of capital letter in the password
 int atleast1Num(const std::string&);            //Return the number of numbers in the password
 int atleast1SC(const std::string&);             //Return the number of special characters in the password
+bool rockyouCheck(const std::string&);          //Return 1 for true or 0 for false if the password is in the rockyou8.txt
+
+
+/*
+    There are different ways to solve this problem, but due to the scope of this program,
+    I will use a very straight forward approach.
+    The password will be rated [1 - 5]; 1 for weak, 5 for strong.
+    Below are the  minimum requirements I believe should be met by a password in
+    order to be considered strong:
+
+                CRITERIA                              STRENGTH
+    ------------------------------------------------------------
+    1. At least 8 characters; the longer the better.    [1]
+    2. Not a dictionary word                            [1]
+    3. At least 1 letter [a-z]                          [1]
+    4. At least 1 capital letter [A-Z]                  [1]
+    5. At least 1 number [0-9]                          [1]
+    6. Not in rockyou.txt                               [1]
+    7. At least 1 special character                     [1]
+
+    A combination of all this criteria will yield the maximum strength of 5
+*/
+
 
 int main()
 {
     int i;
     std::string result;
     std::string input;
+    int score = 0;
 
     std::cout << "\tThis program rates the complexity of a password [1 - 5]; 1 for weak, 5 for strong.\n";
     std::cout << "\tEnter a password or \"q\" to quit\n";
@@ -32,35 +56,50 @@ int main()
         std::getline(std::cin, input);
 
         if (input == "q")
+        {
             break;
-        std::cout << "\nUser input: " << input;
+            exit(EXIT_SUCCESS);
+        }
+        else if(input[0] == '\0')
+            continue;
+        //std::cout << "\nUser input: " << input;  //Verify the input
+/*
+                CRITERIA                              STRENGTH
+    ------------------------------------------------------------
+    1. At least 8 characters; the longer the better.    [1]
+    2. Not a dictionary word                            [1]
+    3. At least 1 letter [a-z]                          [1]
+    4. At least 1 capital letter [A-Z]                  [1]
+    5. At least 1 number [0-9]                          [1]
+    6. Not in rockyou.txt                               [1]
+    7. At least 1 special character                     [1]
+
+    A combination of all this criteria will yield the maximum strength of 5
+
+*/
+        else if (pwdLength(input) < 8 || (dictionaryCheck(input) == 1) || (atleast1CL(input) >= 1) || (atleast1Letter(input) >= 1))
+            score = MIN_SCORE;
+        else if (pwdLength(input) >= 8 && dictionaryCheck(input) == 0 && atleast1CL(input) >= 1 || atleast1Letter(input) >= 1)
+            score = MIN_SCORE + 1;
+        else if (pwdLength(input) >= 8 && dictionaryCheck(input) == 0 && (atleast1CL(input) >= 1 || atleast1Letter(input) >= 1 && atleast1Num(input) >= 1))
+            score = MIN_SCORE + 2;
+        else if (pwdLength(input) >= 8 && dictionaryCheck(input) == 0 && (atleast1CL(input) >= 1 && atleast1Letter(input) >= 1 && atleast1Num(input) >= 1))
+            score = MIN_SCORE + 3;
+        else if (pwdLength(input) >= 8 && dictionaryCheck(input) == 0 && (atleast1CL(input) >= 1 && atleast1Letter(input) >= 1 && atleast1Num(input) >= 1) && rockyouCheck(input) == 0 && atleast1SC(input))
+            score = MAX_SCORE;
+        else
+            score = 3;
+        std::cout << "Password strength: " << score;
+/*
         std::cout << "\nThere are " << pwdLength(input) <<" characters";
         std::cout << "\nIs the password in the dictionary? " << dictionaryCheck(input) << "\n";
         std::cout << "\nNumber of letters: " << atleast1Letter(input) << "\n";
         std::cout << "\nNumber of \'numbers\': " << atleast1Num(input) << "\n";
         std::cout << "\nNumber of special characters: " << atleast1SC(input) << "\n";
-
-
-
+*/
     }
     return 0;
 }
-
-/*
-    There are different ways to solve this problem, but due to the scope of this program,
-    I will use a very straight forward approach.
-    The password will be rated [1 - 5]; 1 for weak, 5 for strong.
-    Below are the password requirements I believe should be met by a password in
-    order to be considered strong:
-
-    1. At least 8 characters; the longer the better.
-    2. Not a dictionary word
-    3. Atleast 1 letter [a-z]
-    4. Atleast 1 capital letter [A-Z]
-    5. Atleast 1 number [0-9]
-    6. Atleast 1 special character
-*/
-
 
 /*Accept a string input and return a complexity rating*/
 int pwdLength (const std::string &pwd)
@@ -102,6 +141,7 @@ bool dictionaryCheck(const std::string &pwd)
     return found;
 }
 
+
 /* Check for at least 1 letter [a-z] */
 int atleast1Letter (const std::string &pwd)
 {
@@ -120,8 +160,8 @@ int atleast1Letter (const std::string &pwd)
         else
             letterFound = false;
     }
-    std::cout << "\nNumber of letters found: " << j;
-    std::cout << "\nLetter found? " << found;
+    //std::cout << "\nNumber of letters found: " << j;
+    //std::cout << "\nLetter found? " << found;
     return j;
 }
 
@@ -144,8 +184,8 @@ int atleast1CL (const std::string &pwd)
         else
             clFound = false;
     }
-    std::cout << "\nNumber of capital letters found: " << j;
-    std::cout << "\nCapital letter found? " << found;
+    //std::cout << "\nNumber of capital letters found: " << j;
+    //std::cout << "\nCapital letter found? " << found;
     return j;
 }
 
@@ -167,7 +207,7 @@ int atleast1Num (const std::string &pwd)
         else
             numFound = false;
     }
-    std::cout << "\nNumber of numbers found: " << j;
+    //std::cout << "\nNumber of numbers found: " << j;
     std::cout << "\nNumber found? " << found;
     return j;
 }
@@ -194,7 +234,39 @@ int atleast1SC (const std::string &pwd)
                 scFound = false;
         }
     }
-    std::cout << "\nNumber of special characters found: " << j;     //how many special characters?
-    std::cout << "\nSpecial character found loop? " << found;
+    //std::cout << "\nNumber of special characters found: " << j;     //how many special characters?
+    //std::cout << "\nSpecial character found loop? " << found;
     return j;
+}
+
+/* Check rockyou.txt that contains at least 8 characters */
+
+bool rockyouCheck(const std::string &pwd)
+{
+    /* rockyou.txt from KALI linux */
+    std::string word;
+    std::ifstream file("rockyou8.txt");
+    bool found = false;
+
+    if(file.is_open())
+    {
+        while(getline(file, word))
+        {
+            if(word == pwd.c_str())    //The password is in the list
+            {
+                found = true;
+                //std::cout <<"\nThis is the word: " << word;
+                //std::cout << "\nFound inside the loop: " << found;
+                break;
+            }
+            else
+                found = false;
+        }
+        file.close();
+    }
+    else
+        std::cout << "\n Error opening file, try again";
+    //std::cout << "\nFound outside the loop: " << found;
+
+    return found;
 }
