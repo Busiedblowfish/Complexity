@@ -1,10 +1,12 @@
+/* This program will score a user supplied password based on how complex it is */
+
 #include <iostream>
 #include <string>
 #include <cstring>
 #include <cstdlib>
 #include <fstream>
 
-
+//SC is the list of all special characters on the keyboard
 #define SC " `~!@#$%^&*()-_+={}[]\\|:;\"\'<>,.?/"
 #define MAX_SCORE 5
 #define MIN_SCORE 1
@@ -18,34 +20,31 @@ bool atleast1Num(const std::string&);            //Return the number of numbers 
 bool atleast1SC(const std::string&);             //Return the number of special characters in the password
 
 
+
 /*
-    There are different ways to solve this problem, but due to the scope of this program,
-    I will use a very straight forward approach.
-    The password will be rated [1 - 5]; 1 for weak, 5 for strong.
-    Below are the  minimum requirements I believe should be met by a password in
-    order to be considered strong:
+            CRITERIA                                                                 STRENGTH
+    -----------------------------------------------------------------------------------------
+    1. At most 8 characters  or dictionary word                                         [1]
+    2. 9-10 characters and non-dictionary word with any combinations of characters      [2]
+    3. 11-12 characters, non-dictionary word and all combinations of characters         [3]
+    4. 13-14 characters, non-dictionary word and all combinations of characters         [4]
+    5. 15 or more characters, non-dictionary word and all combinations of characters    [5]
 
-                CRITERIA                              STRENGTH
-    ------------------------------------------------------------
-    1. At least 8 characters; the longer the better.    [1]
-    2. Not a dictionary word                            [1]
-    3. At least 1 letter [a-z]                          [1]
-    4. At least 1 capital letter [A-Z]                  [1]
-    5. At least 1 number [0-9]                          [1]
-    6. At least 1 special character                     [1]
+        combinations of characters:
+        . At least 1 letter [a-z]
+        . At least 1 capital letter [A-Z]
+        . At least 1 number [0-9]
+        . At least 1 special character
 
-    A combination of all this criteria will yield the maximum strength of 5
 */
-
 
 int main()
 {
-    int i;
     std::string result;
     std::string input;
     int score = 0;
 
-    std::cout << "\tThis program rates the complexity of a password [1 - 5]; 1 for weak, 5 for strong.\n";
+    std::cout << "\tThis program rates the complexity of a password [1 - 5]; 1 for very weak, 5 for very strong.\n";
     std::cout << "\tEnter a password or \"q\" to quit\n";
     //std::cin.ignore();
     while(1)
@@ -58,33 +57,23 @@ int main()
             break;
             exit(0);
         }
-        else if(input[0] == '\0')
+        else if(input[0] == '\0') //Do nothing when user presses "Enter"
             continue;
-        else if (pwdLength(input) < 8 && (inDictionary(input) == 1 || atleast1CL(input) == 1 || atleast1Letter(input) == 1 || atleast1Num(input) == 1 || atleast1SC(input) == 1))
+        // True = 1, False = 0
+        else if (pwdLength(input) < 9 || (inDictionary(input) == 1 ))
             score = MIN_SCORE;
-        else if (pwdLength(input) >= 8 && inDictionary(input) == 0 || (atleast1CL(input) == 1 || atleast1Letter(input) == 1 || atleast1Num(input) == 1 || atleast1SC(input) == 1))
+        else if (pwdLength(input) >= 9 && pwdLength(input) < 11 && inDictionary(input) == 0 && (atleast1CL(input) == 1 || atleast1Letter(input) == 1 || atleast1Num(input) == 1 || atleast1SC(input) == 1))
             score = MIN_SCORE + 1;
-        else if (pwdLength(input) >= 8 && inDictionary(input) == 0 && (atleast1CL(input) == 1 && atleast1Letter(input) == 1 || atleast1Num(input) == 1 || atleast1SC(input) == 1))
+        else if (pwdLength(input) >= 11 && pwdLength(input) < 13 && inDictionary(input) == 0 && (atleast1CL(input) == 1 && atleast1Letter(input) == 1 && atleast1Num(input) == 1 && atleast1SC(input) == 1))
             score = MIN_SCORE + 2;
-        else if (pwdLength(input) >= 8 && inDictionary(input) == 0 && (atleast1CL(input) == 1 && atleast1Letter(input) == 1 && atleast1Num(input) == 1 || atleast1SC(input) == 1))
+        else if (pwdLength(input) >= 13 && pwdLength(input) < 15 && inDictionary(input) == 0 && (atleast1CL(input) == 1 && atleast1Letter(input) == 1 && atleast1Num(input) == 1 && atleast1SC(input) == 1))
             score = MIN_SCORE + 3;
+        else if (pwdLength(input) >= 15 && inDictionary(input) == 0 && (atleast1CL(input) == 1 && atleast1Letter(input) == 1 && atleast1Num(input) == 1 && atleast1SC(input) == 1))
+            score = MIN_SCORE + 4;
         else
-            score = MAX_SCORE;
+            score = MIN_SCORE + 1;  //case where the password is very long but doesn't have complete components of a Password
 
         //std::cout << "\nUser input: " << input;  //Verify the input
-/*
-                CRITERIA                              STRENGTH
-    ------------------------------------------------------------
-    1. At least 8 characters; the longer the better.    [1]
-    2. Not a dictionary word                            [1]
-    3. At least 1 letter [a-z]                          [1]
-    4. At least 1 capital letter [A-Z]                  [1]
-    5. At least 1 number [0-9]                          [1]
-    6. At least 1 special character                     [1]
-
-    A combination of all this criteria will yield the maximum strength of 5
-
-*/
 
         std::cout << "Password strength: " <<  score << "\n";
 /*
@@ -131,7 +120,7 @@ bool inDictionary(const std::string &pwd)
         file.close();
     }
     else
-        std::cout << "\n Error opening file, try again";
+        std::cout << "\n Error opening file, try again\n";
     //std::cout << "\nFound outside the loop: " << found;
 
     return found;
