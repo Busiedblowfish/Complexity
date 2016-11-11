@@ -26,6 +26,7 @@ bool atleast1SC(const std::string&);             //Return the number of special 
     -----------------------------------------------------------------------------------------
     1. At most 8 characters  or dictionary word                                         [1]
     2. 9-10 characters and non-dictionary word with any combinations of characters      [2]
+        Very long combinations of characters but not all	                            [2]
     3. 11-12 characters, non-dictionary word and all combinations of characters         [3]
     4. 13-14 characters, non-dictionary word and all combinations of characters         [4]
     5. 15 or more characters, non-dictionary word and all combinations of characters    [5]
